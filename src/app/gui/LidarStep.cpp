@@ -59,12 +59,13 @@ std::vector<std::string> scan_photo_subdirs(const std::vector<std::string>& clou
 bool add_scan_photo_inputs(const LidarJob& job, const std::string& workspace,
                            const std::map<std::string, app::FrameStencil>& stencils,
                            std::vector<PrepInput>& inputs, LidarPrep& out, std::string& error) {
+    if (!job.enabled() || job.in_frame) return true;
     const fs::path root = fs::path(workspace) / "lidar";
     const fs::path anchors = root / "anchors.json";
     std::error_code ec;
     // Written afresh every run, so a scan taken off the list leaves nothing.
     fs::remove(anchors, ec);
-    if (!job.enabled() || job.in_frame || !job.scan_photos) return true;
+    if (!job.scan_photos) return true;
     try {
         const std::vector<std::string> subs = scan_photo_subdirs(job.clouds);
         for (size_t i = 0; i < job.clouds.size(); i++) {
